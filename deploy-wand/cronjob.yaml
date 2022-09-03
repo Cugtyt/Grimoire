@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: deploy-wand
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: k8s
+            image: alpine/k8s:1.23.7
+            command:
+            - /bin/sh
+            - -c
+            - kubectl get pods;
+            volumeMounts:
+            - name: cronjob-configmap
+              mountPath: /config
+
+          - name: grimoire
+            image: grimoire:0.1
+            env:
+            - name: CLUSTER_NAME
+              value: "Minikube"
+            volumeMounts:
+            - name: cronjob-configmap
+              mountPath: /config
+
+          restartPolicy: OnFailure
+          volumes:
+          - name: cronjob-configmap
+            configMap:
+              name: cronjob-configmap

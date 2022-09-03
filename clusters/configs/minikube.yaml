@@ -1,0 +1,4 @@
+name: Minikube
+labels:
+- minikube
+- test
